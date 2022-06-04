@@ -1,10 +1,21 @@
 <?php
-class position
+class block
 {
     public $x;
     public $y;
+    public piece $piece;
+    public function setpiece(piece $p)
+    {
+        $this->piece=$p;
+    }
+    public function getpiece()
+    {
+        return $this->piece;
+    }
+    
 }
 class player
+
 {
     public $color;
     public $player_name;
