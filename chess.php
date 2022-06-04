@@ -8,17 +8,27 @@ class player
 {
     public $color;
     public $player_name;
+    function movie(piece $pi ,position $pos)
+    {
+
+    }
 }
  abstract class piece
 {
      public $color;
-     public position $position;
+     public board $board;
      abstract function move(position $pos);
+     abstract function am_i_cheched();
+}
+
+class board
+{
+  public piece $piece;
 }
  class game
 {
   public $turn="whitetoken";
-  public piece[] $board;
+
 }
 
 class rook extends piece
@@ -27,5 +37,11 @@ class rook extends piece
     {
 
     }
+    public function am_i_cheched()
+    {
+        // TODO: Implement am_i_cheched() method.
+
+    }
+
 }
 $game=new game();
