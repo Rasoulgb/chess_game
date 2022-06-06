@@ -4,6 +4,7 @@ class block
     public $x;
     public $y;
     public $color;
+    public $isfill=0;
     public piece $piece;
     public function setpiece(piece $p)
     {
@@ -29,8 +30,9 @@ class player
 {
      public $color;
      public $name;
-     //public position $position;
-     abstract function move(block $block);
+     public $position;
+     public $iskilled=0;
+     abstract function move(block $block,board $board);
      abstract function am_i_cheched();
 }
 
@@ -60,16 +62,17 @@ class board
         $cell=0;
        for($r=0;$r<8;$r++)
        {
-           for($h=0;$h<8;$h++)
+           for($c=0;$c<8;$c++)
            {
                if($cell%2==0)
                    $color="w";
                else
                    $color="b";
-               $this->block[$r][$h] = new block();
-               $this->block[$r][$h]->color = $color;
-               $this->block[$r][$h]->x=$r;
-               $this->block[$r][$h]->y=$h;
+               $this->block[$r][$c] = new block();
+               $this->block[$r][$c]->color = $color;
+               $this->block[$r][$c]->x=$r;
+               $this->block[$r][$c]->y=$c;
+
                $cell++;
         //       echo "block $r,$h is $color ";
            }
@@ -85,7 +88,7 @@ class board
     {
         //$board=new board();
         //$this->piece[0][0]=[];
-        $this->block[0][0]->piece=  new rook();
+      /*  $this->block[0][0]->piece=  new rook();
         $this->block[0][0]->piece->color = "black";
 
         $this->block[0][7]->piece = new rook();
@@ -107,13 +110,16 @@ class board
         $this->block[0][3]->piece->color = "black";
 
         $this->block[0][4]->piece = new king();
-        $this->block[0][4]->piece->color = "black";
+        $this->block[0][4]->piece->color = "black";*/
 
 //      var_dump($this->block[0][0]);
         for ($i = 0; $i < 8; $i++)
         {
             $this->block[1][$i]->piece = new pawn();
             $this->block[1][$i]->piece->color = "black";
+            $this->block[1][$i]->piece->position['r'] =1 ;
+            $this->block[1][$i]->piece->position['c'] =$i ;
+            $this->block[1][$i]->isfill=1;
             //        var_dump($this->block[1][$i]);
         }
 
@@ -154,6 +160,76 @@ class board
   }
 }
 
+class pawn extends piece
+{
+    public $name="P";
+    public function move(block $block,board $board)
+    {
+        if ($this->Is_valid_move($block,$board)==0);
+        {
+       //     echo $res;
+
+        }
+
+    }
+
+    public function Is_valid_move(block $block,board $board)
+    {
+        // TODO: Implement move() method.
+
+
+        $rdiff=$this->position['r']-$block->x;
+        if ($this->color=='black') $rdiff=-1*$rdiff;
+
+         $cdiff=$this->position['c']-$block->y;
+echo  $rdiff;
+        if($cdiff==0)//حرکت مستقیم است
+        if($this->position['r']==1)//اگر در خانه شروع بود
+        {
+        echo 'can move 2 row';
+
+            if($rdiff==1)
+            {
+                echo "can move 2 block but move 1 block forward";
+                return 0;
+            }
+            if($rdiff==2 )
+            {
+                echo "can  move 2 block && move 2 block forward";
+                return 0;
+            }
+        }
+        else
+        {
+            //can move 1 row
+            if($rdiff==1 && $block->isfill==0)
+            {
+                echo "only can move 1 block and now move 1 block forward";
+                return 0;
+            }
+
+        }
+        else
+
+        {
+            if ($cdiff==1 or $cdiff==-1)
+                if ($rdiff==1 && $block->isfill==1 && $block->piece->color!=$this->color)
+                    $block->piece->iskilled=1;
+
+        }
+
+
+    }
+    public function am_i_cheched()
+    {
+        // TODO: Implement am_i_cheched() method.
+    }
+
+}
+
+
+/*
+
 class rook extends piece
 {
     public $name="R";
@@ -169,48 +245,8 @@ class rook extends piece
     }
 
 }
-class pawn extends piece
-{
-    public $name="P";
-    public function move(block $block)
-    {
-        if($this->Is_valid_move($block)==0)
-        {
-            echo "move is done";
-        }
 
-    }
 
-    public function Is_valid_move(block $pos)
-    {
-        // TODO: Implement move() method.
-
-        var_dump($pos);
-      echo  $rdiff=$this->block->x-$pos->x;
-      echo  $hdiff=$this->block->y-$pos->y;
-        if($hdiff==0)
-        if($this->position->x==2)
-        {
-         //can move 2 row
-            if($rdiff<3 && $rdiff>0)
-                return 0;
-        }
-        else
-        {
-            //can move 1 row
-            if($rdiff=1)
-                return 0;
-
-        }
-        else return -1;
-
-    }
-    public function am_i_cheched()
-    {
-        // TODO: Implement am_i_cheched() method.
-    }
-
-}
 
 class king extends piece
 {
@@ -270,11 +306,11 @@ class knight extends piece
 
 }
 
-
+*/
 
 
 
 $game=new game();
 $game->run();
 //$game->board->show_board();
-$game->board->block[01][0]->piece->move($game->board->block[2][0]);
+$game->board->block[01][0]->piece->move($game->board->block[2][0],$game->board);
