@@ -165,61 +165,103 @@ class pawn extends piece
     public $name="P";
     public function move(block $block,board $board)
     {
-        if ($this->Is_valid_move($block,$board)==0);
+        $isvalidmove=$this->Is_valid_move($block,$board);
+        if ($isvalidmove==0)
         {
        //     echo $res;
+            if($this->is_valid_block($block,$isvalidmove)==-1)
+
+                echo "block not valid";
+
 
         }
 
     }
+public function is_valid_block(block $block,$isvalidmove)
+{
+    if(($isvalidmove==1 or $isvalidmove==2)   and $block->isfill==1)
 
+    {
+        echo "enemy-but cant kill";
+        return -1; //not valid block
+    }
+
+    if ($isvalidmove==3 and $block->isfill==1 and $block->piece->color!=$this->color)
+    {
+        echo "enemy and must kill";
+        return 2;
+    }
+    echo "valid block ";
+    return 1;
+}
     public function Is_valid_move(block $block,board $board)
     {
         // TODO: Implement move() method.
 
-
+        $validmove=0;
         $rdiff=$this->position['r']-$block->x;
         if ($this->color=='black') $rdiff=-1*$rdiff;
 
          $cdiff=$this->position['c']-$block->y;
-echo  $rdiff;
+
         if($cdiff==0)//حرکت مستقیم است
         if($this->position['r']==1)//اگر در خانه شروع بود
         {
-        echo 'can move 2 row';
 
             if($rdiff==1)
             {
                 echo "can move 2 block but move 1 block forward";
-                return 0;
+                $validmove=1;
+                return 1;
             }
             if($rdiff==2 )
             {
                 echo "can  move 2 block && move 2 block forward";
-                return 0;
+
+                if($board->block[$this->position['r']+1][$block->y]->isfill==1)
+                {
+                    echo "block is fill- move is not valid";
+                    $validmove=-1;
+                    return -1;
+                }
+                $validmove=2;
+                return 2;
             }
         }
         else
         {
             //can move 1 row
-            if($rdiff==1 && $block->isfill==0)
+            if($rdiff==1 )
             {
                 echo "only can move 1 block and now move 1 block forward";
-                return 0;
+                $validmove=1;
+                return 1;
             }
 
         }
         else
 
         {
-            if ($cdiff==1 or $cdiff==-1)
-                if ($rdiff==1 && $block->isfill==1 && $block->piece->color!=$this->color)
-                    $block->piece->iskilled=1;
+            if (($cdiff==1 or $cdiff==-1) and ($rdiff==1))
+            {
+                echo "move for kill";
+                $validmove=3;
+                return 3;
+
+            }
 
         }
-
+    if($validmove==0)
+        {
+            echo "move is not valid last";
+            return -1;
+        }
 
     }
+
+
+
+
     public function am_i_cheched()
     {
         // TODO: Implement am_i_cheched() method.
@@ -313,4 +355,4 @@ class knight extends piece
 $game=new game();
 $game->run();
 //$game->board->show_board();
-$game->board->block[01][0]->piece->move($game->board->block[2][0],$game->board);
+$game->board->block[01][2]->piece->move($game->board->block[4][2],$game->board);
