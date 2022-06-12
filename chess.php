@@ -9,6 +9,7 @@ class block
     public function setpiece(piece $p)
     {
         $this->piece=$p;
+        $this->isfill=1;
     }
     public function getpiece()
     {
@@ -42,16 +43,16 @@ class board
 
     public function show_board()
     {
-        for ($row = 0; $row < 8; $row++)
+        for ($r = 0; $r < 8; $r++)
         {
             $bgc = 0;
             $fgc = 0;
-            for ($h = 0; $h < 8; $h++)
+            for ($c = 0; $c < 8; $c++)
             {
-                if ((isset(($this->block[$row][$h]->piece))))
-                    echo "\e[0;30;43m" . $this->block[$row][$h]->piece->name . "\e[0m";
+                if ((isset(($this->block[$r][$c]->piece))))
+                    echo "\e[0;30;43m" . $this->block[$r][$c]->piece->name . "\e[0m";
                 else
-                    echo $this->block[$row][$h]->color;
+                    echo $this->block[$r][$c]->color;
             }
             echo "\n";
         }
@@ -165,14 +166,32 @@ class pawn extends piece
     public $name="P";
     public function move(block $block,board $board)
     {
-        $isvalidmove=$this->Is_valid_move($block,$board);
-        if ($isvalidmove==0)
+        echo $isvalidmove=$this->Is_valid_move($block,$board);
+        if ($isvalidmove==0 or $isvalidmove==2)
         {
-       //     echo $res;
-            if($this->is_valid_block($block,$isvalidmove)==-1)
+            echo $isvalidmove;
 
-                echo "block not valid";
+            switch ($res=$this->is_valid_block($block, $isvalidmove))
 
+            {
+            case -1:
+
+                echo "block not valid.filled by enemy";
+                return -1;
+
+            case 1:
+                echo "valid block and must be move-----$res";
+                $this->position['r']=$board->block[$block->x];
+                $this->position['c']=$board->block[$block->y];
+                $board->block[$block->x][$block->y]->setpiece($this);
+
+                break;
+
+            case 2:
+                echo "valid block and must be kill enemy";
+                //call kill
+
+            }
 
         }
 
@@ -355,4 +374,4 @@ class knight extends piece
 $game=new game();
 $game->run();
 //$game->board->show_board();
-$game->board->block[01][2]->piece->move($game->board->block[4][2],$game->board);
+$game->board->block[01][2]->piece->move($game->board->block[3][2],$game->board);
