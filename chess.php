@@ -31,7 +31,8 @@ class player
 {
      public $color;
      public $name;
-     public $position;
+     public $r;
+     public $c;
      public $iskilled=0;
      abstract function move(block $block,board $board);
      abstract function am_i_cheched();
@@ -43,6 +44,7 @@ class board
 
     public function show_board()
     {
+       // var_dump($this->block[1][0]);
         for ($r = 0; $r < 8; $r++)
         {
             $bgc = 0;
@@ -100,26 +102,31 @@ class board
 
         $this->block[0][6]->piece = new knight();
         $this->block[0][6]->piece->color = "black";
-
+*/
         $this->block[0][2]->piece = new bishop();
         $this->block[0][2]->piece->color = "black";
+        $this->block[0][2]->piece->r=0;
+        $this->block[0][2]->piece->c=2;
 
         $this->block[0][5]->piece = new bishop();
         $this->block[0][5]->piece->color = "black";
+        $this->block[0][5]->piece->r=0;
+        $this->block[0][5]->piece->c=5;
 
-        $this->block[0][3]->piece = new qeen();
-        $this->block[0][3]->piece->color = "black";
+        /*
+                $this->block[0][3]->piece = new qeen();
+                $this->block[0][3]->piece->color = "black";
 
-        $this->block[0][4]->piece = new king();
-        $this->block[0][4]->piece->color = "black";*/
+                $this->block[0][4]->piece = new king();
+                $this->block[0][4]->piece->color = "black";*/
 
 //      var_dump($this->block[0][0]);
         for ($i = 0; $i < 8; $i++)
         {
             $this->block[1][$i]->piece = new pawn();
             $this->block[1][$i]->piece->color = "black";
-            $this->block[1][$i]->piece->position['r'] =1 ;
-            $this->block[1][$i]->piece->position['c'] =$i ;
+            $this->block[1][$i]->piece->r =1 ;
+            $this->block[1][$i]->piece->c =$i ;
             $this->block[1][$i]->isfill=1;
             //        var_dump($this->block[1][$i]);
         }
@@ -143,10 +150,6 @@ class board
 
 //var_dump($this->block);
   }
-  public function showboard()
-  {
-
-  }
 }
  class game
 {
@@ -164,9 +167,27 @@ class board
 class pawn extends piece
 {
     public $name="P";
+
+    public function CaniSeeKing(block $block,board $board)
+
+    {
+      $r=$this->r;
+      $c=$this->c;
+      if($this->color=='b' and  $board->block[$r+1][$c+1]->isfill==1 and $board->block[$r+1][$c-1]->isfill==1)
+          if ($board->block[$r+1][$c+1]->piece->name=='king' and $board->block[$r+1][$c-1]->piece->name=='king' ) return 1 ;
+
+        if($this->color=='w' and  $board->block[$r-1][$c+1]->isfill==1 and $board->block[$r-1][$c-1]->isfill==1)
+            if ($board->block[$r-1][$c+1]->piece->name=='king' and $board->block[$r-1][$c-1]->piece->name=='king' ) return 1 ;
+
+        return -1;
+    }
+
+
     public function move(block $block,board $board)
     {
+
         echo $isvalidmove=$this->Is_valid_move($block,$board);
+
         if ($isvalidmove==0 or $isvalidmove==2)
         {
             echo $isvalidmove;
@@ -181,21 +202,33 @@ class pawn extends piece
 
             case 1:
                 echo "valid block and must be move-----$res";
-                $this->position['r']=$board->block[$block->x];
-                $this->position['c']=$board->block[$block->y];
+                $this->r=$block->x;
+                $this->c=$block->y;
+
+
                 $board->block[$block->x][$block->y]->setpiece($this);
+
+                if($this->CaniSeeKing($block,$board)==1)
+                    echo "CanISeeKing";
 
                 break;
 
             case 2:
                 echo "valid block and must be kill enemy";
                 //call kill
+                kill($block);
 
             }
 
         }
 
     }
+public function kill(block $block)
+{
+    $block->isfill=0;
+    $block->piece=null;
+    echo "kill piece";
+}
 public function is_valid_block(block $block,$isvalidmove)
 {
     if(($isvalidmove==1 or $isvalidmove==2)   and $block->isfill==1)
@@ -218,13 +251,18 @@ public function is_valid_block(block $block,$isvalidmove)
         // TODO: Implement move() method.
 
         $validmove=0;
-        $rdiff=$this->position['r']-$block->x;
+        if($block->x>7 or $block->y>7 or $block->x<0 or $block->y<0)
+        {
+            echo "invalid move ";
+            return -1;
+        }
+        $rdiff=$this->r-$block->x;
         if ($this->color=='black') $rdiff=-1*$rdiff;
 
-         $cdiff=$this->position['c']-$block->y;
+         $cdiff=$this->c-$block->y;
 
         if($cdiff==0)//حرکت مستقیم است
-        if($this->position['r']==1)//اگر در خانه شروع بود
+        if($this->r==1)//اگر در خانه شروع بود
         {
 
             if($rdiff==1)
@@ -237,7 +275,7 @@ public function is_valid_block(block $block,$isvalidmove)
             {
                 echo "can  move 2 block && move 2 block forward";
 
-                if($board->block[$this->position['r']+1][$block->y]->isfill==1)
+                if($board->block[$this->r+1][$block->y]->isfill==1)
                 {
                     echo "block is fill- move is not valid";
                     $validmove=-1;
@@ -284,6 +322,7 @@ public function is_valid_block(block $block,$isvalidmove)
     public function am_i_cheched()
     {
         // TODO: Implement am_i_cheched() method.
+
     }
 
 }
@@ -338,21 +377,6 @@ class qeen extends piece
 
 }
 
-class bishop extends piece
-{
-    public $name="B";
-    public function move(block $pos)
-    {
-        // TODO: Implement move() method.
-    }
-    public function am_i_cheched()
-    {
-        // TODO: Implement am_i_cheched() method.
-    }
-
-}
-
-
 class knight extends piece
 {
     public $name="N";
@@ -371,7 +395,106 @@ class knight extends piece
 
 
 
+
+class bishop extends piece
+{
+    public $name="B";
+
+    public function move(block $block,board $board)
+    {
+
+        $isvalidmove=$this->Is_valid_move($block,$board);
+echo "valid move=".$isvalidmove;
+        if ($isvalidmove==1)
+        {
+           switch ($res=$this->is_valid_block($block))
+            {
+                case -1:
+
+                    echo "block not valid.filled by enemy";
+                    return -1;
+
+                case 1:
+                    echo "valid block and must be move-----$res";
+                    $this->r=$block->x;
+                    $this->c=$block->y;
+
+
+                    $board->block[$block->x][$block->y]->setpiece($this);
+
+                    //if($this->CaniSeeKing($block,$board)==1)
+                      //  echo "CanISeeKing";
+
+                    break;
+
+                case 2:
+                    echo "valid block and must be kill enemy";
+                    //call kill
+                    kill($block);
+
+            }
+
+        }
+
+
+    }
+
+    public function is_valid_block(block $block)
+    {
+        if( $block->isfill==1) {
+            switch ($block->color == $this->color) {
+                case true:
+                    echo "block fill by " . $this->color;
+                    return -1;
+                    break;
+                case false:
+                    echo "block is fill by enemy and must call kill";
+                    return 1;
+            }
+        }
+
+            if( $block->isfill==0)
+            {
+
+                return 1;
+            }
+    }
+    public function Is_valid_move(block $block,board $board)
+    {
+        // TODO: Implement move() method.
+
+        $validmove=0;
+        if($block->x>7 or $block->y>7 or $block->x<0 or $block->y<0)
+        {
+            echo "invalid move ";
+            return -1;
+        }
+
+
+
+
+        $rdiff=abs($this->r-$block->x);
+        $cdiff=abs($this->c-$block->y);
+        if(($rdiff==1 and $cdiff==2 )or ($rdiff==2 and $cdiff==1))
+            return 1;
+        return -1;//move is not valid
+    }
+
+    public function am_i_cheched()
+    {
+        // TODO: Implement am_i_cheched() method.
+    }
+
+
+
+
+}
+
+
+
+
 $game=new game();
 $game->run();
 //$game->board->show_board();
-$game->board->block[01][2]->piece->move($game->board->block[3][2],$game->board);
+$game->board->block[0][2]->piece->move($game->board->block[2][3],$game->board);
+//$game->board->block[0][5]->piece->move($game->board->block[4][2],$game->board);
