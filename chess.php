@@ -402,9 +402,8 @@ class bishop extends piece
 
     public function move(block $block,board $board)
     {
-
         $isvalidmove=$this->Is_valid_move($block,$board);
-echo "valid move=".$isvalidmove;
+        echo "valid move=".$isvalidmove;
         if ($isvalidmove==1)
         {
            switch ($res=$this->is_valid_block($block))
@@ -418,10 +417,7 @@ echo "valid move=".$isvalidmove;
                     echo "valid block and must be move-----$res";
                     $this->r=$block->x;
                     $this->c=$block->y;
-
-
                     $board->block[$block->x][$block->y]->setpiece($this);
-
                     //if($this->CaniSeeKing($block,$board)==1)
                       //  echo "CanISeeKing";
 
@@ -431,12 +427,32 @@ echo "valid move=".$isvalidmove;
                     echo "valid block and must be kill enemy";
                     //call kill
                     kill($block);
-
             }
 
         }
 
+    }
 
+    public function CanIseeKing(board $board)
+    {
+        $c=$this->c;
+        $r=$this->r;
+        if($board[$r+1][$c-2]->isfill==1 and $board[$r+1][$c-2]->piece->name=="king" and $board[$r+1][$c-2]->piece->color!=$this->color)
+            echo "cheek";
+        if($board[$r+2][$c-1]->isfill==1 and $board[$r+2][$c-1]->piece->name=="king" and $board[$r+2][$c-1]->piece->color!=$this->color)
+            echo "cheek";
+        if($board[$r-1][$c-2]->isfill==1 and $board[$r-1][$c-2]->piece->name=="king" and $board[$r-1][$c-2]->piece->color!=$this->color)
+            echo "cheek";
+        if($board[$r-2][$c-1]->isfill==1 and $board[$r-2][$c-1]->piece->name=="king" and $board[$r-2][$c-1]->piece->color!=$this->color)
+            echo "cheek";
+        if($board[$r-2][$c+1]->isfill==1 and $board[$r-2][$c+1]->piece->name=="king" and $board[$r-2][$c+1]->piece->color!=$this->color)
+            echo "cheek";
+        if($board[$r-1][$c+2]->isfill==1 and $board[$r-1][$c+2]->piece->name=="king" and $board[$r-1][$c+2]->piece->color!=$this->color)
+            echo "cheek";
+        if($board[$r+1][$c+2]->isfill==1 and $board[$r+1][$c+2]->piece->name=="king" and $board[$r+1][$c+2]->piece->color!=$this->color)
+            echo "cheek";
+        if($board[$r+2][$c+1]->isfill==1 and $board[$r+2][$c+1]->piece->name=="king" and $board[$r+2][$c+1]->piece->color!=$this->color)
+            echo "cheek";
     }
 
     public function is_valid_block(block $block)
